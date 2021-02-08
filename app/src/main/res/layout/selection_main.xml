@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#545756">
+
+    <Button
+        android:id="@+id/selectEncrypt"
+        android:layout_width="154.61dp"
+        android:layout_height="176.45dp"
+        android:background="@drawable/icon_encrypt"
+        app:layout_constraintBottom_toTopOf="@+id/selectDecrypt"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/selectDecrypt"
+        android:layout_width="154.61dp"
+        android:layout_height="176.45dp"
+        android:background="@drawable/icon_decrypt"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/selectEncrypt" />
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="ENCRYPT"
+        android:textColor="@color/white"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="@+id/selectEncrypt"
+        app:layout_constraintStart_toStartOf="@+id/selectEncrypt"
+        app:layout_constraintTop_toBottomOf="@+id/selectEncrypt" />
+
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="DECRYPT"
+        android:textColor="@color/white"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="@+id/selectEncrypt"
+        app:layout_constraintStart_toStartOf="@+id/selectDecrypt"
+        app:layout_constraintTop_toBottomOf="@+id/selectDecrypt" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
