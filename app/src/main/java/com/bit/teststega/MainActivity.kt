@@ -1,18 +1,22 @@
 package com.bit.teststega
 
 import android.Manifest
-import android.app.ProgressDialog
+import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.media.MediaScannerConnection
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log.d
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
@@ -41,6 +45,7 @@ class MainActivity : AppCompatActivity(), TextEncodingCallback, TextDecodingCall
 
         msg = findViewById(R.id.textMessage)
         key = findViewById(R.id.textKey)
+        val lay = findViewById<ConstraintLayout>(R.id.pageLayout)
         val float = findViewById<FloatingActionButton>(R.id.floatingActionButton)
 
         float.setOnClickListener {
@@ -48,6 +53,10 @@ class MainActivity : AppCompatActivity(), TextEncodingCallback, TextDecodingCall
         }
 
         checkAndRequestPermissions()
+
+        lay.setOnClickListener {
+            closeKeyBoard(it)
+        }
 
      //select image
         val selectImg = findViewById<Button>(R.id.buttonSelectImage)
@@ -67,9 +76,9 @@ class MainActivity : AppCompatActivity(), TextEncodingCallback, TextDecodingCall
                     Snackbar.make(it, "ENCRYPTING ..", Snackbar.LENGTH_SHORT).show()
                     //ImageSteganography Object instantiation
                     val imageSteganography = ImageSteganography(
-                        msg!!.text.toString(),
-                        key!!.text.toString(),
-                        original_image
+                            msg!!.text.toString(),
+                            key!!.text.toString(),
+                            original_image
                     )
                     //TextEncoding object Instantiation
                     val textEncoding = TextEncoding(this, this)
@@ -96,8 +105,8 @@ class MainActivity : AppCompatActivity(), TextEncodingCallback, TextDecodingCall
             if (encodeImg != null) {
                 //Making the ImageSteganography object
                 val imageSteganography = ImageSteganography(
-                    key!!.text.toString(),
-                    encodeImg
+                        key!!.text.toString(),
+                        encodeImg
                 )
 
                 //Making the TextDecoding object
@@ -154,17 +163,19 @@ class MainActivity : AppCompatActivity(), TextEncodingCallback, TextDecodingCall
     private fun saveToInternalStorage(bitmapImage: Bitmap) {
         val fOut: OutputStream
         val file = File(
-            Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_DOWNLOADS
-            ), "Encoded" + ".PNG"
+                Environment.getExternalStoragePublicDirectory(
+                        Environment.DIRECTORY_DOWNLOADS
+                ), "Encoded" + ".png"
         ) // the File to save ,
 
         try {
             fOut = FileOutputStream(file)
             bitmapImage.compress(Bitmap.CompressFormat.PNG, 100, fOut) // saving the Bitmap to a file
+
             fOut.flush() // Not really required
             fOut.close() // do not forget to close the stream
-            Toast.makeText(applicationContext, "done Encode", Toast.LENGTH_SHORT).show()
+            Toast.makeText(applicationContext, "IMAGE SAVED", Toast.LENGTH_SHORT).show()
+
             d("bomoh", "saved to internal")
 //            whether_encoded.post(Runnable {
 //                Toast.makeText(applicationContext, "done Encode", Toast.LENGTH_SHORT).show()
@@ -173,12 +184,19 @@ class MainActivity : AppCompatActivity(), TextEncodingCallback, TextDecodingCall
             e.printStackTrace()
         } catch (e: IOException) {
             e.printStackTrace()
+        } finally {
+            MediaScannerConnection.scanFile(this, arrayOf(file.toString()), null
+            ) { path, uri ->
+                // code to execute when scanning is complete
+                d("bomoh", "scan complete")
+            }
         }
     }
 
+    @Suppress("DEPRECATION")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == pickImage) {
+        if (resultCode == Activity.RESULT_OK && requestCode == pickImage) {
             val img = findViewById<ImageView>(R.id.imageView)
             imageUri = data?.data
             original_image = MediaStore.Images.Media.getBitmap(contentResolver, imageUri)
@@ -190,8 +208,8 @@ class MainActivity : AppCompatActivity(), TextEncodingCallback, TextDecodingCall
 
     private fun checkAndRequestPermissions() {
         val permissionWriteStorage = ContextCompat.checkSelfPermission(
-            this,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE
+                this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
         )
         val readPermission =
             ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
@@ -205,6 +223,11 @@ class MainActivity : AppCompatActivity(), TextEncodingCallback, TextDecodingCall
         if (!listPermissionsNeeded.isEmpty()) {
             ActivityCompat.requestPermissions(this, listPermissionsNeeded.toTypedArray(), 1)
         }
+    }
+
+    private fun closeKeyBoard(v: View) {
+        val imm = this.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(v.windowToken, 0)
     }
 
 

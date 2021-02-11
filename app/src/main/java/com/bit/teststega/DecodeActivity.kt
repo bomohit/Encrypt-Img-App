@@ -1,6 +1,8 @@
 package com.bit.teststega
 
 import android.Manifest
+import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
@@ -10,11 +12,13 @@ import android.provider.MediaStore
 import android.util.Log
 import android.util.Log.d
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
@@ -41,10 +45,16 @@ class DecodeActivity : AppCompatActivity(), TextDecodingCallback {
         key = findViewById(R.id.textKey)
         msg!!.isCursorVisible = false
         msg!!.isFocusableInTouchMode = false
+        val lay = findViewById<ConstraintLayout>(R.id.pageLayout)
+
         val float = findViewById<FloatingActionButton>(R.id.floatingActionButton)
 
         float.setOnClickListener {
             onBackPressed()
+        }
+
+        lay.setOnClickListener {
+            closeKeyBoard(it)
         }
 
         checkAndRequestPermissions()
@@ -52,8 +62,11 @@ class DecodeActivity : AppCompatActivity(), TextDecodingCallback {
         val selectImg = findViewById<Button>(R.id.buttonSelectImage)
         selectImg.setOnClickListener {
 
-            val gallery = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.INTERNAL_CONTENT_URI)
-            startActivityForResult(gallery, pickImage)
+//            val gallery = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.INTERNAL_CONTENT_URI)
+//            startActivityForResult(gallery, pickImage)
+            val intent = Intent(Intent.ACTION_GET_CONTENT)
+            intent.type = "image/*";
+            startActivityForResult(intent, pickImage)
         }
 
         val selectEncode = findViewById<Button>(R.id.buttonEncode)
@@ -120,7 +133,7 @@ class DecodeActivity : AppCompatActivity(), TextDecodingCallback {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == pickImage) {
+        if (resultCode == Activity.RESULT_OK && requestCode == pickImage) {
             val img = findViewById<ImageView>(R.id.imageView)
             imageUri = data?.data
             original_image = MediaStore.Images.Media.getBitmap(contentResolver, imageUri)
@@ -150,4 +163,8 @@ class DecodeActivity : AppCompatActivity(), TextDecodingCallback {
         }
     }
 
+    private fun closeKeyBoard(v: View) {
+        val imm = this.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(v.windowToken, 0)
+    }
 }
